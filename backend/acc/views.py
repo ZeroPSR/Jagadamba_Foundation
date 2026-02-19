@@ -16,6 +16,11 @@ def register(request):
         user_phone = data.get('user_phone')
         password = data.get('password')
         
+        # Validate required fields
+        if not all([user_name, user_mail, user_phone, password]):
+            print(f"Missing fields - name: {user_name}, mail: {user_mail}, phone: {user_phone}, pass: {bool(password)}")
+            return JsonResponse({"error": "All fields are required"}, status=400)
+        
         # Check if user_mail already exists
         if Users.objects.filter(user_mail=user_mail).exists():
             return JsonResponse("Use another Email", safe=False)
@@ -30,7 +35,11 @@ def register(request):
         
         return JsonResponse("Registered", safe=False)
     
+    except json.JSONDecodeError as e:
+        print(f"JSON Decode Error: {e}")
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
     except Exception as e:
+        print(f"Register Error: {e}")
         return JsonResponse({"error": str(e)}, status=400)
 
 
